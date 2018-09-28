@@ -202,7 +202,7 @@ export default {
       search: '',
       email: {
         subject: 'Attention!!',
-        body: 'Thank you for your interest in the show.\n The show has been delayed by two days due to bad weather conditions. \n Sorry for the inconvenience'
+        body: 'Thank you for your interest in the show.\nThe show has been delayed by two days due to bad weather conditions.\nSorry for the inconvenience'
       }
     }
   },
