@@ -37,7 +37,7 @@
               <div class="col-lg lead text-left font" style="border:1px  ">
                 <!-- Date -->
                 <span class="font-weight-bold">Date :
-                  <span class="font-weight-normal">{{ ShowDate }}</span>
+                  <span class="font-weight-normal">{{ show.ShowDate }}</span>
                 </span>
                 <br>
                 <!-- Time  -->
@@ -148,7 +148,12 @@
               </div>
               <div class="form-group row">
                 <label class="col-sm-4 form-label">Show Date:</label>
-                <input class="col-sm-7 form-control" type="date" id="showdate" :value="show.ShowDate" name="ShowDate" required>
+                <input type="text" class="date form-control col-sm-7" name="ShowDate" id="datepicker-input"
+                data-date-multidate="true" data-date-multidateSeparator="; " :data-date-container=" '#editshow' + show._id" 
+                required>
+                    <span @click="showdatepicker()" id="date-icon" class="col-sm-1">
+                      <i class="fas fa-calendar-alt fa-2x" aria-hidden="true" ></i>
+                    </span>
               </div>
               <div class="form-group row">
                 <label class="col-sm-4 form-label">Show Time:</label>
@@ -171,19 +176,30 @@
                     <option>R</option>
                   </select>
                 </div>
+               <form @submit.prevent="addticketpriceEditModal()" id="ticketformEdit">
+                  <div class="form-group row">
+                    <label class="col-sm-4 form-label required">Ticket Type:</label>
+                    <input class="col-sm-6 form-control" type="text" placeholder="Ticket Type" id="TicketTypeEditShow" required>
+                  </div>
+                  <div class="form-group row">
+                    <label class="col-sm-4 form-label required">Ticket Price:</label>
+                      <div class="input-group-prepend">
+                        <div class="input-group-text">$</div>
+                      </div>
+                    <input class="col-sm-4 form-control" type="number" placeholder="Ticket Price" id="TicketPriceEditShow" min="1" required>
+                    <button class="btn col-sm-1.5 offset-sm-1" type="submit">Add</button>
+                  </div>
+                </form>
+
                 <div class="form-group row">
-                  <label class="col-sm-4 form-label">Adult Ticket:</label>
-                    <div class="input-group-prepend">
-                      <div class="input-group-text">$</div>
-                    </div>
-                  <input class="col-sm-6 form-control" type="number" placeholder="Ticket Cost for Adult" id="adultprice" :value="show.ShowPriceForAdult" name="ShowPriceForAdult" min="1" required>
-                </div>
-                <div class="form-group row">
-                  <label class="col-sm-4 form-label">Children Ticket:</label>
-                    <div class="input-group-prepend">
-                      <div class="input-group-text">$</div>
-                    </div>
-                  <input class="col-sm-6 form-control" type="number" placeholder="Ticket Cost for children" id="childrenprice" min="1" :value="show.ShowPriceForChildren" name="ShowPriceForChildren" required>
+                  <ol class="col-sm-8 offset-sm-2" name="ticketdetails" id="ticketdetails">
+                    <li v-for="ticket in show.Ticketdetails" :key="ticket.TicketType" style="height: 50px;vertical-align: middle">
+                      {{ ticket.TicketType }} - $ {{ ticket.TicketPrice }}
+                        <button type="button" class="btn rounded-circle float-right mx-2" id="delete" @click="deleteticket(ticket.TicketType)">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </li>
+                  </ol>
                 </div>
                 <div class="form-group row">
                   <label class="col-sm-4 form-label">Upload Image:</label>
@@ -200,7 +216,7 @@
                    </label>
                  </div>
                  <input type="hidden" :value="show._id" name="id">
-                <div class="">
+                <div>
                     <button type="reset" class=" btn btn-danger">Reset</button>
                     <button type="submit" class=" btn btn-success">Save Changes</button>
                 </div>
@@ -214,259 +230,294 @@
 
 <script>
 export default {
-  name: 'AdminShow',
-  data () {
+  name: "AdminShow",
+  data() {
     return {
       /* global moment */
-      ShowDate: moment(this.show.ShowDate, 'YYYY-MM-DD').format('MMMM Do YYYY'),
-      ShowTime: moment(this.show.ShowTime, 'HH:mm').format('hh:mm a'),
-      token: window.localStorage.getItem('AccessToken'),
+      ShowDate: moment(this.show.ShowDate, "YYYY-MM-DD").format("MMMM Do YYYY"),
+      ShowTime: moment(this.show.ShowTime, "HH:mm").format("hh:mm a"),
+      token: window.localStorage.getItem("AccessToken"),
       showImg: true,
       time: Date()
-    }
+    };
   },
-  props: ['show'],
+  props: ["show"],
   methods: {
-    emitevent () {
-      this.$emit('showmodal')
+    emitevent() {
+      console.log(this.show)
+      this.$emit("showmodal", this.show);
     },
-    emailevent () {
-      this.$emit('showemailmodal', this.show)
+    emailevent() {
+      this.$emit("showemailmodal", this.show);
     },
-    editevent () {
+    editevent() {
       /* global $ */
-      console.log('editclicked', this.show._id)
-      $('#editshow' + this.show._id).modal('show')
+      console.log("editclicked", this.show._id);
+      $("#editshow" + this.show._id).modal("show");
+      this.showdatepicker()
     },
-    editshow () {
-      console.log('editclicked')
-      var formdata = new FormData(document.querySelector('#editshowform' + this.show._id))
+    editshow() {
+      console.log("editclicked");
+      var formdata = new FormData(
+        document.querySelector("#editshowform" + this.show._id)
+      )
+      formdata.append('Ticketdetails', JSON.stringify(this.show.Ticketdetails))
+
       // var _this = this
-      axios.create({
-        baseURL: url,
-        headers: { 'token': window.localStorage.getItem('AccessToken') }
-      }).post('/updateshow', formdata)
-        .then(function (res) {
-          $('#editshow' + this.show._id).modal('hide')
-          swal(
-            'Updated!',
-            'Show has been successfully updated.',
-            'success'
-          )
-          this.time = Date()
-          axios({
-            method: 'get',
-            headers: {
-              token: window.localStorage.getItem('AccessToken')
-            },
-            url: url + '/showlist'
-          })
-            .then(response => {
-              this.$eventbus.$emit('refreshdata', response.data)
+      axios
+        .create({
+          baseURL: url,
+          headers: { token: window.localStorage.getItem("AccessToken") }
+        })
+        .post("/updateshow", formdata)
+        .then(
+          function(res) {
+            $("#editshow" + this.show._id).modal("hide");
+            swal("Updated!", "Show has been successfully updated.", "success");
+            this.time = Date();
+            axios({
+              method: "get",
+              headers: {
+                token: window.localStorage.getItem("AccessToken")
+              },
+              url: url + "/showlist"
+            })
+              .then(response => {
+                this.$eventbus.$emit("refreshdata", response.data);
+              })
+              .catch(err => {
+                console.log("error while getting show list", err);
+              });
+          }.bind(this)
+        )
+        .catch(error => {
+          console.log(error);
+        });
+    },
+    deleteshow() {
+      /* global swal axios url _ */
+      swal({
+        title: "Are you sure?",
+        text: "You won't be able to revert this!",
+        type: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "Yes, delete it!"
+      }).then(result => {
+        if (result.value) {
+          axios
+            .create({
+              baseURL: url,
+              headers: { token: window.localStorage.getItem("AccessToken") }
+            })
+            .post("/deleteshow", { id: this.show._id })
+            .then(res => {
+              swal("Deleted!", "Show has been deleted.", "success");
+              axios({
+                method: "get",
+                headers: {
+                  token: window.localStorage.getItem("AccessToken")
+                },
+                url: url + "/showlist"
+              })
+                .then(response => {
+                  this.$eventbus.$emit("refreshdata", response.data);
+                })
+                .catch(err => {
+                  console.log("error while getting show list", err);
+                });
+            })
+            .catch(error => {
+              console.log(error);
+            });
+        }
+      });
+    },
+    showstatuschanged(isPublished) {
+      axios
+        .create({
+          baseURL: url,
+          headers: { token: window.localStorage.getItem("AccessToken") }
+        })
+        .post("/ispublished", {
+          id: this.show._id,
+          isPublished: isPublished
+        })
+        .then(res => {
+          console.log(res);
+        })
+        .catch(error => {
+          console.log(error);
+        });
+    },
+    emitshowdescription(showclicked) {
+      this.$eventbus.$emit("showdescription", showclicked);
+    },
+    duplicateEvent(show) {
+      console.log("duplicate show clicked");
+      swal({
+        title: "Duplicate Show",
+        text: "Do you want to duplicate the show!",
+        type: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "Yes, Sure!"
+      }).then(res => {
+        console.log(res.value);
+        if (res.value) {
+          axios
+            .create({
+              baseURL: url,
+              headers: { token: window.localStorage.getItem("AccessToken") }
+            })
+            .post("/duplicateShow", show)
+            .then(res => {
+              console.log(res);
             })
             .catch(err => {
-              console.log('error while getting show list', err)
-            })
-        }.bind(this))
-        .catch(error => {
-          console.log(error)
-        })
+              console.log(error);
+            });
+        }
+      });
     },
-    deleteshow () {
-      /* global swal axios url */
+    showdatepicker () {
+      console.log('date picker clicked')
+      let dates = this.show.ShowDate.split(',')
+      _.each(dates, (element, index, list) => {
+        let date = element.replace(';','')
+        list[index] = new Date(date)
+      })
+      console.log(dates)
+     $(`#editshowform${this.show._id} .row`+' .date').datepicker('setDates', dates)
+      // $('.date').datepicker('show')
+    },
+    deleteticket (TicketType) {
       swal({
-        title: 'Are you sure?',
+        title: `Do you want to delete ${TicketType} ?`,
         text: "You won't be able to revert this!",
         type: 'warning',
         showCancelButton: true,
         confirmButtonColor: '#3085d6',
         cancelButtonColor: '#d33',
-        confirmButtonText: 'Yes, delete it!'
+        confirmButtonText: `Yes, delete!`
       })
         .then((result) => {
           if (result.value) {
-            axios.create({
-              baseURL: url,
-              headers: { 'token': window.localStorage.getItem('AccessToken') }
-            }).post('/deleteshow', { id: this.show._id })
-              .then(res => {
-                swal(
-                  'Deleted!',
-                  'Show has been deleted.',
-                  'success'
-                )
-                axios({
-                  method: 'get',
-                  headers: {
-                    token: window.localStorage.getItem('AccessToken')
-                  },
-                  url: url + '/showlist'
-                })
-                  .then(response => {
-                    this.$eventbus.$emit('refreshdata', response.data)
-                  })
-                  .catch(err => {
-                    console.log('error while getting show list', err)
-                  })
-              })
-              .catch(error => {
-                console.log(error)
-              })
+            this.show.Ticketdetails = _.without(this.show.Ticketdetails, _.findWhere(this.show.Ticketdetails, {
+              TicketType: TicketType
+            }))
+            swal(
+              'Deleted!',
+              `Ticket Type:  ${TicketType} has been deleted.`,
+              'success'
+            )
           }
         })
     },
-    showstatuschanged (isPublished) {
-      axios.create({
-        baseURL: url,
-        headers: { 'token': window.localStorage.getItem('AccessToken') }
+    addticketpriceEditModal () {
+      this.show.Ticketdetails.push({
+        'TicketType': $('#TicketTypeEditShow').val(),
+        'TicketPrice': $('#TicketPriceEditShow').val()
       })
-        .post('/ispublished', {
-          id: this.show._id,
-          isPublished: isPublished
-        })
-        .then(res => {
-          console.log(res)
-        })
-        .catch(error => {
-          console.log(error)
-        })
-    },
-    emitshowdescription (showclicked) {
-      this.$eventbus.$emit('showdescription', showclicked)
-    },
-    duplicateEvent (show) {
-      console.log('duplicate show clicked')
-      swal({
-        title: 'Duplicate Show',
-        text: 'Do you want to duplicate the show!',
-        type: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#3085d6',
-        cancelButtonColor: '#d33',
-        confirmButtonText: 'Yes, Sure!'
-      })
-        .then(res => {
-          console.log(res.value)
-          if (res.value) {
-            axios.create(
-              {
-                baseURL: url,
-                headers: {'token': window.localStorage.getItem('AccessToken')}
-              }
-            ).post('/duplicateShow', show)
-              .then(res => {
-                console.log(res)
-              })
-              .catch(err => {
-                console.log(error)
-              })
-          }
-        })
-      // .then(result => {
-      //   console.log(result.value)
-      //   if(result.value) {
-      //     axios.create({
-      //       baseURL: url,
-      //       headers: { 'token': window.localStorage.getItem('AccessToken') }
-      //     })
-      //     .post('/duplicateShow', show)
-      //     .then( res => {
-      //       console.log(res)
-      //     })
-      //     .catch( error => {
-      //         console.log(error)
-      //     })
-      //   }
-      // })
+      document.getElementById('ticketformEdit').reset()
     }
   },
+  mounted () {
+      // $('.date').datepicker({
+      //     container: '#editshow' + this.show._id
+      //   })
+  },
   watch: {
-    show: function (newVal, oldVal) {
-      this.ShowDate = moment(newVal.ShowDate, 'YYYY-MM-DD').format('MMMM Do YYYY')
-      this.ShowTime = moment(newVal.ShowTime, 'HH:mm').format('hh:mm a')
+    show: function(newVal, oldVal) {
+      this.ShowDate = moment(newVal.ShowDate, "YYYY-MM-DD").format(
+        "MMMM Do YYYY"
+      )
+      this.ShowTime = moment(newVal.ShowTime, "HH:mm").format("hh:mm a")
     }
   }
-}
+};
 </script>
 
 <style scoped>
-  #delete:hover {
-    color: #910000;
-    background-color: #DA7A7A
-  }
-  #delete {
-    color: #D14F4F;
-    background-color: none
-  }
-  .btn-default.btn-on.active {
-      background-color: #5BB75B;
-      color: white;
-  }
+#delete:hover {
+  color: #910000;
+  background-color: #da7a7a;
+}
+#delete {
+  color: #d14f4f;
+  background-color: none;
+}
+.btn-default.btn-on.active {
+  background-color: #5bb75b;
+  color: white;
+}
 
-  .btn-default.btn-off.active {
-      background-color: #DA4F49;
-      color: white;
-  }
+.btn-default.btn-off.active {
+  background-color: #da4f49;
+  color: white;
+}
 
-  .btn-default.btn-on-1.active {
-      background-color: #006FFC;
-      color: white;
-  }
+.btn-default.btn-on-1.active {
+  background-color: #006ffc;
+  color: white;
+}
 
-  .btn-default.btn-off-1.active {
-      background-color: #DA4F49;
-      color: white;
-  }
+.btn-default.btn-off-1.active {
+  background-color: #da4f49;
+  color: white;
+}
 
-  .btn-default.btn-on-2.active {
-      background-color: #00D590;
-      color: white;
-  }
+.btn-default.btn-on-2.active {
+  background-color: #00d590;
+  color: white;
+}
 
-  .btn-default.btn-off-2.active {
-      background-color: #A7A7A7;
-      color: white;
-  }
+.btn-default.btn-off-2.active {
+  background-color: #a7a7a7;
+  color: white;
+}
 
-  .btn-default.btn-on-3.active {
-      color: #5BB75B;
-      font-weight: bolder;
-  }
+.btn-default.btn-on-3.active {
+  color: #5bb75b;
+  font-weight: bolder;
+}
 
-  .btn-default.btn-off-3.active {
-      color: #DA4F49;
-      font-weight: bolder;
-  }
+.btn-default.btn-off-3.active {
+  color: #da4f49;
+  font-weight: bolder;
+}
 
-  .btn-default.btn-on-4.active {
-      background-color: #006FFC;
-      color: #5BB75B;
-  }
+.btn-default.btn-on-4.active {
+  background-color: #006ffc;
+  color: #5bb75b;
+}
 
-  .btn-default.btn-off-4.active {
-      background-color: #DA4F49;
-      color: #DA4F49;
-  }
+.btn-default.btn-off-4.active {
+  background-color: #da4f49;
+  color: #da4f49;
+}
 
-  .green {
-      background-color: rgb(0, 92, 50);
-  }
-  .grey {
-      background-color: #A9A9A9;
-  }
-  .seats_rounded {
-      border-radius: 30px;
-  }
-  .font1{
-    font-size:8vw;
-  }
+.green {
+  background-color: rgb(0, 92, 50);
+}
+.grey {
+  background-color: #a9a9a9;
+}
+.seats_rounded {
+  border-radius: 30px;
+}
+.font1 {
+  font-size: 8vw;
+}
 .card {
-    box-shadow: 5px 4px 8px 0 rgba(20, 53, 40,0.2);
-    transition: 0.3s;
+  box-shadow: 5px 4px 8px 0 rgba(20, 53, 40, 0.2);
+  transition: 0.3s;
 }
 
 .card:hover {
-    box-shadow: 10px 10px 35px 0 #006600;
+  box-shadow: 10px 10px 35px 0 #006600;
 }
 
 .slider.round {
@@ -484,7 +535,9 @@ export default {
   height: 34px;
 }
 
-.switch .sliderinput {display:none;}
+.switch .sliderinput {
+  display: none;
+}
 
 .slider {
   position: absolute;
@@ -494,8 +547,8 @@ export default {
   right: 0;
   bottom: 0;
   background-color: #ccc;
-  -webkit-transition: .4s;
-  transition: .4s;
+  -webkit-transition: 0.4s;
+  transition: 0.4s;
 }
 
 .slider:before {
@@ -506,8 +559,8 @@ export default {
   left: 4px;
   bottom: 4px;
   background-color: white;
-  -webkit-transition: .4s;
-  transition: .4s;
+  -webkit-transition: 0.4s;
+  transition: 0.4s;
 }
 
 .sliderinput:checked + .slider {
@@ -515,7 +568,7 @@ export default {
 }
 
 .sliderinput:focus + .slider {
-  box-shadow: 0 0 1px #2196F3;
+  box-shadow: 0 0 1px #2196f3;
 }
 
 .sliderinput:checked + .slider:before {
@@ -524,4 +577,15 @@ export default {
   transform: translateX(26px);
 }
 
+#date-icon{
+  position: absolute;
+  right: 35px;
+  padding: 2px;
+  display: flex;
+  align-items: center;
+}
+#datepicker-input {
+  padding-right: 40px;
+  outline: none;
+}
 </style>

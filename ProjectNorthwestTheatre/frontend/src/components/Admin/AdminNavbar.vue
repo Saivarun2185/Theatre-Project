@@ -107,14 +107,14 @@
                 <form @submit.prevent="addticketprice()" id="ticketform">
                   <div class="form-group row">
                     <label class="col-sm-4 form-label required">Ticket Type:</label>
-                    <input class="col-sm-6 form-control" type="text" placeholder="Ticket Type" id="TicketType" required>
+                    <input class="col-sm-6 form-control" type="text" placeholder="Ticket Type"  id="TicketTypeAddShow" required>
                   </div>
                   <div class="form-group row">
                     <label class="col-sm-4 form-label required">Ticket Price:</label>
                       <div class="input-group-prepend">
                         <div class="input-group-text">$</div>
                       </div>
-                    <input class="col-sm-4 form-control" type="number" placeholder="Ticket Price" id="TicketPrice" min="1" required>
+                    <input class="col-sm-4 form-control" type="number" placeholder="Ticket Price" id="TicketPriceAddShow" min="1" required>
                     <button class="btn col-sm-1.5 offset-sm-1" type="submit">Add</button>
                   </div>
                 </form>
@@ -167,7 +167,6 @@ export default {
       /* global moment  */
       showtime: moment().format('HH:mm'),
       ticketdetails: [
-
       ]
     }
   },
@@ -175,7 +174,7 @@ export default {
   methods: {
     showdatepicker () {
       console.log('date picker clicked')
-      $('.date').datepicker('show')
+      // $('.date').datepicker('show')
     },
     logout () {
       window.localStorage.clear()
@@ -230,10 +229,10 @@ export default {
         })
     },
     addticketprice () {
-      //console.log(TicketType.value)
+     // console.log(TicketType.value)
       this.ticketdetails.push({
-        'TicketType': $('#TicketType').val(),
-        'TicketPrice': $('#TicketPrice').val()
+        'TicketType': $('#TicketTypeAddShow').val(),
+        'TicketPrice': $('#TicketPriceAddShow').val()
       })
       document.getElementById('ticketform').reset()
     },
@@ -266,7 +265,8 @@ export default {
     console.log('element ', document.getElementById('rem_content'))
     $('.date').datepicker({
       multidate: true,
-      multidateSeparator: '; '
+      multidateSeparator: '; ',
+      container: '#myModal'
     })
     function myFunction1 () {
       console.log('myfunction1 show content')
@@ -310,11 +310,21 @@ export default {
     min-height: 100%;
     z-index: 1;
 }
+
+.nav{
+    display: -webkit-box;
+    display: flex;
+    -ms-flex-wrap: wrap;
+    flex-wrap: wrap;
+    padding-left: 0px;
+    margin-bottom: 0;
+    list-style: none;
+}
 .container-fluid {
     padding-right:0;
     padding-left:0;
-    margin-right:auto;
-    margin-left:auto
+    margin-right:0;
+    margin-left:0;
  }
  .switch {
   position: relative;
@@ -418,14 +428,27 @@ export default {
 }
 #date-icon{
   position: absolute;
-  right: 35px;
+  right: 45px;
   padding: 2px;
-display: flex;
-align-items: center;
+  display: flex;
+  align-items: center;
 }
 #datepicker-input {
   padding-right: 40px;
- outline: none;
+  outline: none;
 }
-
+.row{
+    display: -webkit-box;
+    display: flex;
+    -ms-flex-wrap: wrap;
+    flex-wrap: wrap;
+    margin-right: 0px;
+    margin-left: 0px;
+}
+#sidebar{
+  padding-left: 0px;
+}
+ul{
+  padding-left: 10px;
+}
 </style>

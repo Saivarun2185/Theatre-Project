@@ -19,17 +19,18 @@
         </div>
     </div>
      <div class="row col-sm-12 ">
-        
-        <div class=" offset-sm-8 col-sm-4 ">
+        <div class="fixed bg">
+      </div>
+        <div class=" offset-sm-6 col-sm-3 fixed ">
             <div class="input-group mt-3 ">
                 <input class="form-control py-2 border-right-0 border" type="search" v-model="search"  placeholder="Search" id="example-search-input">
                 <span class="input-group-append">
-                    <div class="input-group-text bg-transparent"><i class="fa fa-search"></i></div>
+                    <div class="input-group-text bg-dark text-light "><i class="fa fa-search"></i></div>
                 </span>
             </div>
        
     </div>
-      <UserShow v-for="ele of updatedshowlist" :key="ele._id"  :show="ele" v-if="ele.isPublished">
+      <UserShow class="down" v-for="ele of updatedshowlist" :key="ele._id"  :show="ele" v-if="ele.isPublished">
       </UserShow>
     </div>
     </div>
@@ -122,4 +123,23 @@ export default {
 </script>
 
 <style scoped>
+.fixed{
+    position: fixed;
+    z-index: 100; 
+}
+
+.down{
+  top:70px;
+}
+
+.bg{
+  height: 70px;
+  background-color: rgba(182, 221, 208, 0.9);
+   background-image: linear-gradient(#f6f4ef, #f6f4ef);
+   /* background-image: linear-gradient(207deg, rgba(182, 221, 208, 0.6) , #f6f4ef); */
+  width: 100%;
+   /* border-bottom: 5px solid rgba(4, 224, 151, 0.521); */
+     /* border-bottom-left-radius: 50px ; */
+     box-shadow: 0px 10px 5px #f6f4ef;
+}
 </style>

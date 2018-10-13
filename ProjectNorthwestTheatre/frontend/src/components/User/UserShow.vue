@@ -13,15 +13,15 @@
             <div class="row justify-content-around m-3 rounded  bg-light">
               <!-- image column -->
               <div class="col-lg align-self-center" id="imagediv">
-                <!-- <img :src="'http://localhost:3000/user/image?_id=' + show._id + '&token=' + token + '&time=' + time" class="rounded mx-1 my-1 w-100" alt="Image" id="imagesrc" /> -->
-                <img class="rounded mx-1 my-1 w-100" alt="Image" id="imagesrc" />
+                <img :src="'http://localhost:3000/user/image?_id=' + show._id + '&token=' + token + '&time=' + time" class="rounded mx-1 my-1 w-100" alt="Image" id="imagesrc" />
+                <!-- <img class="rounded mx-1 my-1 w-100" alt="Image" id="imagesrc" /> -->
               </div>
               <!-- image column end -->
               <!-- details of the show -->
               <div class="col-lg lead text-left font" style="border:1px  ">
                 <!-- Date -->
                 <span class="font-weight-bold">Date :
-                  <span class="font-weight-normal">{{ ShowDate }}</span>
+                  <span class="font-weight-normal">{{ show.ShowDate }}</span>
                 </span>
                 <br>
                 <!-- Time  -->

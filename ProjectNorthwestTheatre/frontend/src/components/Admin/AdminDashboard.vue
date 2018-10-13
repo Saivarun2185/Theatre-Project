@@ -18,7 +18,7 @@
 
     </div>
  
-         <AdminShow class="down" v-for="ele of updatedShowList" :key="ele._id"  :show="ele" @showmodal="showmodal()" @showemailmodal="showemailmodal" >
+         <AdminShow class="down" v-for="ele of updatedShowList" :key="ele._id"  :show="ele" @showmodal="showmodal" @showemailmodal="showemailmodal" >
       </AdminShow>
  
      
@@ -78,24 +78,24 @@
       <div class="modal-dialog" role="document">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title" id="exampleModalLongTitle">Enter Details</h5>
+            <h5 class="modal-title" >Enter Details</h5>
             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
               <span aria-hidden="true">&times;</span>
             </button>
           </div>
           <div class="modal-body">
-            <form>
+            <form @submit.prevent="ReserveTickets()" id="ReserveTicketsAdmin">
                   <div class="form-group row">
                     <label class="col-sm-4 form-label">First Name:</label>
-                    <input class="col-sm-7 form-control" type="text" id="firstname" placeholder="Firstname">
+                    <input class="col-sm-7 form-control" type="text" id="Firstname" name="Firstname" placeholder="Firstname">
                   </div>
                   <div class="form-group row">
                     <label class="col-sm-4 form-label">Last Name:</label>
-                    <input class="col-sm-7 form-control" type="text" id="lastname" placeholder="Lastname">
+                    <input class="col-sm-7 form-control" type="text" id="Lastname" name="Lastname" placeholder="Lastname">
                   </div>
                   <div class="form-group row">
                     <label class="col-sm-4 form-label">Email:</label>
-                    <input class="col-sm-7 form-control" type="text" id="email" placeholder="Email">
+                    <input class="col-sm-7 form-control" type="text" id="EmailAddress" name="EmailAddress" placeholder="Email">
                   </div>
                     <fieldset class="form-group">
                         <div class="row">
@@ -113,36 +113,36 @@
                         </div>
                         <div class="form-group row" :class="{'d-none': isTheatreAppreciationStudent !== 'true' }">
                           <label class="col-sm-4 form-label">Section Number:</label>
-                          <select id="inputState" class="form-control col-sm-7">
+                          <select id="SectionEnrolled" class="form-control col-sm-7" name="SectionEnrolled">
                               <option selected value="default">--Select--</option>
-                              <option v-for="ele of sectionlist" :key="ele._id"> 
+                              <option v-for="ele of sectionlist" :key="ele._id" :value="ele.SectionNumber"> 
                                  {{ ele.ProfessorName }}: 
                                  {{ ele.ClassTime12hrs }} - 
                                  {{ ele.ClassDay }} -  
                                  {{ ele.Semester }} {{ ele.Year }}
                                 </option>
                             </select>
-                          <!-- <input class="col-sm-7 form-control" type="text" id="sectionnumber">
+                          <!-- <input class="col-sm-7 form-control" type="text" id="sectionnumber"> -->
                           <a tabindex="0"
                             id="pop"
                             class="btn col-sm-1"
                             role="button"
-                            data-html="true"
                             data-toggle="popover"
                             data-trigger="hover"
                             data-placement="right"
-                            title="Schedule For Current Semester">
+                            title="Need Help!!"
+                            data-content="ProfessorName-ClassTime-ClassDay-Semester">
                             <i class="fas fa-info-circle"></i>
-                        </a> -->
+                        </a>
                         </div>
                         <div class="form-group row" :class="{'d-none': isTheatreAppreciationStudent !== 'false' }">
                             <label class="col-sm-4 form-label">No. Of Tickets:</label>
-                            <select id="inputState" class="form-control col-sm-7">
-                              <option selected v-for="ele of [1,2,3,4,5,6,7,8,9,10]" :key="ele">{{ele}}</option>
+                            <select id="NumberOfTicketsperPerson" class="form-control col-sm-7" name="NumberOfTicketsperPerson">
+                              <option selected v-for="ele of [1,2,3,4,5,6,7,8,9,10]" :key="ele" :value="ele">{{ele}}</option>
                             </select>
                         </div>
                     </fieldset>
-                    <button type="submit" class="btn btn-danger">Reset</button>
+                    <button type="reset" class="btn btn-danger">Reset</button>
                     <button type="submit" class="btn btn-success">Submit</button>
             </form>
           </div>
@@ -199,6 +199,7 @@ export default {
       sectionlist: [],
       showlist: [],
       show: '',
+      reserveshow: '',
       search: '',
       email: {
         subject: 'Attention!!',
@@ -210,8 +211,10 @@ export default {
     AdminShow
   },
   methods: {
-    showmodal () {
+    showmodal (d) {
       $('#ReserveTickets').modal('show')
+      console.log(d)
+      this.reserveshow = d
     },
     showemailmodal (v) {
       this.show = v
@@ -226,18 +229,49 @@ export default {
     sendMail () {
       this.email.subject = $('#subject').val()
       this.email.body = $('#body').val()
-      axios.post( url + '/sendemail',{
-        show: this.show,
-        message: this.message
-      }, {
-        headers: { token: window.localStorage.getItem('AccessToken') }
-      })
-        .then(res => {
-          console.log('mail sent ' + res)
+
+        swal({
+          title: `Do you want to send an email to the Audience ?`,
+          text: "You won't be able to revert this!",
+          type: 'warning',
+          showCancelButton: true,
+          confirmButtonColor: '#3085d6',
+          cancelButtonColor: '#d33',
+          confirmButtonText: `Yes, Send Email`
         })
-        .catch(err => {
-          console.log('error in sending Email' + err)
-        })
+        .then(
+          (result) => {
+          console.log(`send mail clicked ${JSON.stringify(result)}`)
+          if (result.value) {
+            axios.post( url + '/sendemail',{
+              show: this.show,
+              email: this.email
+            }, {
+              headers: { token: window.localStorage.getItem('AccessToken') }
+            })
+            .then(res => {
+              console.log('mail sent ' + res)
+              swal({
+                    position: 'top-end',
+                    type: 'success',
+                    title: 'Mail has been sent Successfully',
+                    showConfirmButton: false,
+                    timer: 1500
+                  })
+            })
+            .catch(err => {
+              console.log('error in sending Email' + err)
+               swal({
+                    position: 'top-end',
+                    type: 'error',
+                    title: 'Mail not sent Due to an Error',
+                    showConfirmButton: false,
+                    timer: 1500
+                  })
+            })
+          }
+        }
+      )
     },
     refreshData () {
       var _this = this
@@ -273,11 +307,44 @@ export default {
         .catch(function (err) {
           console.log('error while getting show list', err)
         })
+    },
+    ReserveTickets () {
+
+      var reserveticketdata = {
+        'FirstName': $('#Firstname').val(), 
+        'LastName': $('#Lastname').val(),
+        'EmailAddress': $('#EmailAddress').val(),
+        'SectionEnrolled': $('#SectionEnrolled').val(),
+        'NumberOfTicketsperPerson': $('#NumberOfTicketsperPerson').val() ? $('#NumberOfTicketsperPerson').val() : 1 ,
+        'isStudent': this.isTheatreAppreciationStudent,
+        'ShowID': this.reserveshow._id
+      }
+
+      // axios.post( url + '/reserveTicket',reserveticketdata, {
+      //     headers: { token: window.localStorage.getItem('AccessToken') }
+      //   })
+      axios
+        .create({
+          baseURL: url,
+          headers: {
+            token: window.localStorage.getItem("AccessToken")
+          }
+        })
+        .post("/reserveTicket", reserveticketdata)
+        .then(res => {
+          swal("Congratualtions!", "You have reserved a Seat", "success")
+          $('#ReserveTicketsAdmin')[0].reset()
+          console.log('Ticket Reserved ' + res)
+        })
+        .catch(err => {
+            console.log('error in Reserving Ticket' + err)
+        })
     }
   },
   mounted () {
     console.log('mounted')
     this.check = true
+    $("[data-toggle=popover]").popover()
     // console.log($('table')[0].outerHTML)
     // $('#pop').popover({
     //   content: $('table')[0].outerHTML
@@ -315,7 +382,7 @@ export default {
 <style scoped>
 .fixed{
     position: fixed;
-    z-index: 100;
+    z-index: 100; 
 }
 
 .down{

@@ -9,6 +9,9 @@ let ShowController = require('./controllers/show.controller')
 let SectionController = require('./controllers/section.controller')
 let MailController = require('./controllers/mail.controller')
 
+
+MailController.startjob()
+
 /* Admin CRUD Operations */
 router.post('/authenticate', adminAuthenticateController.authenticate)
 

@@ -10,7 +10,6 @@ let GeneralAudienceModel = require('../../../models/Audience.model')
 let addShow = (req, res, next) => {
     req.body.Ticketdetails = JSON.parse(req.body.Ticketdetails)
     let Show = new ShowModel(req.body)
-    Show.ShowImage = null
     buffer = req.file.buffer
     Show.save()
         .then(function (Show) {
@@ -47,7 +46,7 @@ let deleteShow = (req, res, next) => {
 module.exports.deleteShow = deleteShow
 
 let GetShowList = (req, res, next) => {
-    ShowModel.find({},'-__v -ShowImage',function (err, ShowList) {
+    ShowModel.find({},'-__v',function (err, ShowList) {
         if (err) return res.status(400).send('Error while getting Shows list')
         if (ShowList) {
             return res.json(ShowList)
@@ -60,6 +59,7 @@ let GetShowList = (req, res, next) => {
 module.exports.GetShowList = GetShowList
 
 let UpdateShow = (req, res, next) => {
+    req.body.Ticketdetails = JSON.parse(req.body.Ticketdetails)
     ShowModel.findByIdAndUpdate(req.body.id,req.body, function (err, Show) {
         if (err || !Show) return res.status(400).send('Show not found')
         if (req.file && req.file.buffer){
@@ -103,11 +103,13 @@ let isPublished = (req,res) => {
 module.exports.isPublished = isPublished
 
 let GetduplicateShow = (req, res, next) => {
-            delete req.body._id
+        let previd = req.body._id
+        delete req.body._id
         let duplicateshow = new ShowModel(req.body)
         duplicateshow
         .save()
         .then( res => {
+            fs.copyFileSync('./images/' + previd, './images/' + res._id)
             next()
         })
         .catch( err => {
@@ -115,9 +117,12 @@ let GetduplicateShow = (req, res, next) => {
         })              
 }
 module.exports.GetduplicateShow = GetduplicateShow
+
 let reserveTickets = (req,res) => {
     let TheatreAppreciationStudent = req.body.isStudent
-    if(TheatreAppreciationStudent){
+    req.body.SectionEnrolled = parseInt(req.body.SectionEnrolled) 
+    req.body.NumberOfTicketsperPerson = parseInt(req.body.NumberOfTicketsperPerson) 
+    if(TheatreAppreciationStudent === "true"){
         let Student = new StudentModel(req.body)
         Student.save()
         .then(

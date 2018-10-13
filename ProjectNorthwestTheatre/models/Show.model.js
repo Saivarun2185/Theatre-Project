@@ -30,9 +30,6 @@ var ShowSchema = new mongoose.Schema({
     isPublished : {
         type : Boolean
     },
-    ShowImage : {
-        type : Buffer
-    },
     ShowPriceForAdult : {
         type : Number,
         min : [0, 'Price Cannot be negative']
