@@ -227,22 +227,22 @@ export default {
       this.email.subject = $('#subject').val()
       this.email.body = $('#body').val()
       axios.post( url + '/sendemail',{
-          show: this.show,
-          message: this.message
-        }, {
-          headers: { token: window.localStorage.getItem('AccessToken') }
-        })
+        show: this.show,
+        message: this.message
+      }, {
+        headers: { token: window.localStorage.getItem('AccessToken') }
+      })
         .then(res => {
-            console.log('mail sent ' + res)
+          console.log('mail sent ' + res)
         })
         .catch(err => {
-            console.log('error in sending Email' + err)
+          console.log('error in sending Email' + err)
         })
     },
     refreshData () {
       var _this = this
-       /* global axios moment _ */
-        axios({
+      /* global axios moment _ */
+      axios({
         method: 'get',
         headers: {
           token: window.localStorage.getItem('AccessToken')
@@ -305,7 +305,7 @@ export default {
   computed: {
     updatedShowList: function () {
       return this.showlist.filter(show => {
-          return show.ShowTitle.toLowerCase().includes(this.search.toLowerCase())
+        return show.ShowTitle.toLowerCase().includes(this.search.toLowerCase())
       })
     }
   }

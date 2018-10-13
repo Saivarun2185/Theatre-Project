@@ -44,7 +44,7 @@ export default {
     formsubmit () {
       var _this = this
       /* Saivarun Illendula - Added API Calls */
-      /* global axios url swal $ */
+      /* global axios url swal */
       axios
         .post(url + '/authenticate', this.formdata)
         .then(function (response) {
