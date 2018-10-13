@@ -6,7 +6,7 @@ const config = {
         tokensecret: 'NorthwestTheatre',
         sessionsecret: 'NorthwestTheatre',
         emailid: 's530859@nwmissouri.edu',
-        password: '3016Tt502'
+        password: '13016Tt1565'
     },
     production:{
         url: 'mongodb+srv://admin:admin@cluster0-tyjvv.mongodb.net/Production?retryWrites=true',

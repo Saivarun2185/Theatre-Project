@@ -9,9 +9,10 @@ const moment = require('moment')
 const theatreappreciationstudents = require('../../../models/TheatreAppreciationStudent.model')
 const audience = require('../../../models/Audience.model')
 let ObjectId = require('mongoose').Types.ObjectId
+let show_id
 
 
-let SendMail = async function (show_id) {
+let SendMail = async function (req,res,next) {
     let transporter = nodemailer.createTransport({
         host: 'smtp.office365.com',
         port: 587,
@@ -21,64 +22,68 @@ let SendMail = async function (show_id) {
             pass: config.password // generated ethereal password
         }
     })
+    let promises = []
+    show_id = ( req && req.body.show._id ) ? req.body.show._id : show_id
 
-    theatreappreciationstudents.find({ ShowID: new ObjectId(show_id) }, ['EmailAddress'], function(err, list){
-        console.log(list)
-    })
-    let students = await Promise.all([ theatreappreciationstudents.find({ ShowID: new ObjectId(show_id) }, ['EmailAddress']).exec() ,
-                                  audience.find({ ShowID: new ObjectId(show_id) }, ['EmailAddress']).exec() ])
-
-
-    console.log(students)
-
-
-
-
-
-    let names =['Saivarun']
-    for(let name of names){
-        ejs.renderFile(path.join(__dirname, "../../../views/mail.ejs"), { name: name, content: req.body.email.body }, function (err, data) {
-            if (err) {
-                console.log(err)
-            } else {
-                // setup email data with unicode symbols
-                let mailOptions = {
-                    from: '"Northwest Theatre" <s530859@nwmissouri.edu>', // sender address
-                    to: 's530464@nwmissouri.edu,s530859@nwmissouri.edu, s533986@nwmissouri.edu', // list of receivers
-                    subject: req.body.email.subject, // Subject line
-                    html: data
-                }
-                // send mail with defined transport object
-                transporter.sendMail(mailOptions, (error, info) => {
-                    if (error) {
-                        return console.log(error)
+    let students = await Promise.all([  theatreappreciationstudents.find(
+                                            { ShowID: new ObjectId(show_id) },
+                                            ['EmailAddress', 'LastName','FirstName']
+                                         ).exec() ,
+                                        audience.find(
+                                            { ShowID: new ObjectId(show_id) },
+                                            ['EmailAddress', 'LastName', 'FirstName']
+                                        ).exec() 
+                                    ])
+    students = [ ...students[0], ...students[1]]
+    for (student of students) {
+            ejs.renderFile( path.join(__dirname, "../../../views/mail.ejs"),
+            { name: `${student.FirstName} ${student.LastName}`, content: req.body.email.body || 'Testing' },
+            function (err, data) {
+                if (err) {
+                    console.error(err)
+                } else {
+                    // setup email data with unicode symbols
+                    let mailOptions = {
+                        from: '"Northwest Theatre" <s530859@nwmissouri.edu>', // sender address
+                        to: student.EmailAddress, // list of receivers
+                        subject: req.body.email.subject || 'test', // Subject line
+                        html: data
                     }
+                    // send mail with defined transport object
+                    promises.push(
+                        new Promise((resolve,reject) => {
+                            transporter.sendMail(mailOptions, (error, info) => {
+                                if (error) {
+                                   console.error(error)
+                                   return reject(error)
+                                }                         
+                                return resolve(info)            
+                            })
+                        })
+                    )
                     
-                    console.log('Message sent: %s', info.messageId)
-                    // Preview only available when sending through an Ethereal account
-                    console.log('Preview URL: %s', nodemailer.getTestMessageUrl(info))
-
-                    res.send(200, "Mail sent Successfully")
-                })
-            }
-        })
+                }
+            })     
+        }
+        await Promise.all(promises)
+        return res ? res.send(200, "Mail Sent Successfully") : "success"
     }
-}
-
 module.exports.SendMail = SendMail
 
 let startjob = function() {
     console.log('cron job started')
-    const job = new cronJob('0 */1 * * * *', function(){
-        show.find({}, ['ShowDate'], function(err, showlist){
+    const job = new cronJob('1 0 0 */1 * *', function(){
+        show.find({}, ['ShowDate','ShowTime'], function(err, showlist){
             for(Show of showlist){
                     let showarray = Show.ShowDate.split(',')
                     for(date of showarray){
-                        console.log(moment().format('MM/DD/YYYY'))
-                        console.log(date)
-                       console.log( moment().diff(moment(date, 'MM/DD/YYYY'), 'days') )
-                        if(moment().diff(moment(date, 'MM/DD/YYYY'), 'days') === 0){
-                            SendMail(Show.id)
+                        console.log(moment().format('MM/DD/YYYY HH:mm'))
+                        console.log(date + ' ' + Show.ShowTime)
+                        console.log( moment().diff(moment(date + Show.ShowTime, 'MM/DD/YYYY HH:mm'), 'hours') )
+                        if( moment().diff(moment(date + Show.ShowTime, 'MM/DD/YYYY HH:mm'), 'hours') <= 0
+                         && moment().diff(moment(date + Show.ShowTime, 'MM/DD/YYYY HH:mm'), 'hours') >= -23 ){
+                            show_id = Show.id
+                            SendMail()
                         }
                     }
                 }
