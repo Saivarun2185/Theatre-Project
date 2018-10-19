@@ -17,11 +17,8 @@
             </div>
 
     </div>
- 
          <AdminShow class="down" v-for="ele of updatedShowList" :key="ele._id"  :show="ele" @showmodal="showmodal" @showemailmodal="showemailmodal" >
       </AdminShow>
- 
-     
     </div>
     <div class="modal" id="descriptionmodal" tabindex="-1" role="dialog">
       <div class="modal-dialog" role="document">
@@ -67,7 +64,7 @@
             </div>
                 <!-- Modal footer -->
             <div class="modal-footer">
-              <button type="button" class="btn btn-success" data-dismiss="modal" @click="saveEmailContent()">Save</button>              
+              <button type="button" class="btn btn-success" data-dismiss="modal" @click="saveEmailContent()">Save</button>
               <button type="button" class="btn btn-danger" data-dismiss="modal" @click="sendMail()">Save &amp; Email</button>
             </div>
         </div>
@@ -115,10 +112,10 @@
                           <label class="col-sm-4 form-label">Section Number:</label>
                           <select id="SectionEnrolled" class="form-control col-sm-7" name="SectionEnrolled">
                               <option selected value="default">--Select--</option>
-                              <option v-for="ele of sectionlist" :key="ele._id" :value="ele.SectionNumber"> 
-                                 {{ ele.ProfessorName }}: 
-                                 {{ ele.ClassTime12hrs }} - 
-                                 {{ ele.ClassDay }} -  
+                              <option v-for="ele of sectionlist" :key="ele._id" :value="ele.SectionNumber">
+                                 {{ ele.ProfessorName }}:
+                                 {{ ele.ClassTime12hrs }} -
+                                 {{ ele.ClassDay }} -
                                  {{ ele.Semester }} {{ ele.Year }}
                                 </option>
                             </select>
@@ -193,7 +190,7 @@ export default {
   name: 'AdminDashboard',
   data () {
     return {
-      /* global $ axios url */
+      /* global $ axios url swal */
       check: false,
       isTheatreAppreciationStudent: '',
       sectionlist: [],
@@ -230,48 +227,48 @@ export default {
       this.email.subject = $('#subject').val()
       this.email.body = $('#body').val()
 
-        swal({
-          title: `Do you want to send an email to the Audience ?`,
-          text: "You won't be able to revert this!",
-          type: 'warning',
-          showCancelButton: true,
-          confirmButtonColor: '#3085d6',
-          cancelButtonColor: '#d33',
-          confirmButtonText: `Yes, Send Email`
-        })
+      swal({
+        title: `Do you want to send an email to the Audience ?`,
+        text: "You won't be able to revert this!",
+        type: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: `Yes, Send Email`
+      })
         .then(
           (result) => {
-          console.log(`send mail clicked ${JSON.stringify(result)}`)
-          if (result.value) {
-            axios.post( url + '/sendemail',{
-              show: this.show,
-              email: this.email
-            }, {
-              headers: { token: window.localStorage.getItem('AccessToken') }
-            })
-            .then(res => {
-              console.log('mail sent ' + res)
-              swal({
+            console.log(`send mail clicked ${JSON.stringify(result)}`)
+            if (result.value) {
+              axios.post(url + '/sendemail', {
+                show: this.show,
+                email: this.email
+              }, {
+                headers: { token: window.localStorage.getItem('AccessToken') }
+              })
+                .then(res => {
+                  console.log('mail sent ' + res)
+                  swal({
                     position: 'top-end',
                     type: 'success',
                     title: 'Mail has been sent Successfully',
                     showConfirmButton: false,
                     timer: 1500
                   })
-            })
-            .catch(err => {
-              console.log('error in sending Email' + err)
-               swal({
+                })
+                .catch(err => {
+                  console.log('error in sending Email' + err)
+                  swal({
                     position: 'top-end',
                     type: 'error',
                     title: 'Mail not sent Due to an Error',
                     showConfirmButton: false,
                     timer: 1500
                   })
-            })
+                })
+            }
           }
-        }
-      )
+        )
     },
     refreshData () {
       var _this = this
@@ -309,13 +306,12 @@ export default {
         })
     },
     ReserveTickets () {
-
       var reserveticketdata = {
-        'FirstName': $('#Firstname').val(), 
+        'FirstName': $('#Firstname').val(),
         'LastName': $('#Lastname').val(),
         'EmailAddress': $('#EmailAddress').val(),
         'SectionEnrolled': $('#SectionEnrolled').val(),
-        'NumberOfTicketsperPerson': $('#NumberOfTicketsperPerson').val() ? $('#NumberOfTicketsperPerson').val() : 1 ,
+        'NumberOfTicketsperPerson': $('#NumberOfTicketsperPerson').val() ? $('#NumberOfTicketsperPerson').val() : 1,
         'isStudent': this.isTheatreAppreciationStudent,
         'ShowID': this.reserveshow._id
       }
@@ -327,24 +323,24 @@ export default {
         .create({
           baseURL: url,
           headers: {
-            token: window.localStorage.getItem("AccessToken")
+            token: window.localStorage.getItem('AccessToken')
           }
         })
-        .post("/reserveTicket", reserveticketdata)
+        .post('/reserveTicket', reserveticketdata)
         .then(res => {
-          swal("Congratualtions!", "You have reserved a Seat", "success")
+          swal('Congratualtions!', 'You have reserved a Seat', 'success')
           $('#ReserveTicketsAdmin')[0].reset()
           console.log('Ticket Reserved ' + res)
         })
         .catch(err => {
-            console.log('error in Reserving Ticket' + err)
+          console.log('error in Reserving Ticket' + err)
         })
     }
   },
   mounted () {
     console.log('mounted')
     this.check = true
-    $("[data-toggle=popover]").popover()
+    $('[data-toggle=popover]').popover()
     // console.log($('table')[0].outerHTML)
     // $('#pop').popover({
     //   content: $('table')[0].outerHTML
@@ -382,7 +378,7 @@ export default {
 <style scoped>
 .fixed{
     position: fixed;
-    z-index: 100; 
+    z-index: 100;
 }
 
 .down{

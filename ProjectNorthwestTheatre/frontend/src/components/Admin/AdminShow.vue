@@ -149,7 +149,7 @@
               <div class="form-group row">
                 <label class="col-sm-4 form-label">Show Date:</label>
                 <input type="text" class="date form-control col-sm-7" name="ShowDate" id="datepicker-input"
-                data-date-multidate="true" data-date-multidateSeparator="; " :data-date-container=" '#editshow' + show._id" 
+                data-date-multidate="true" data-date-multidateSeparator="; " :data-date-container=" '#editshow' + show._id"
                 required>
                     <span @click="showdatepicker()" id="date-icon" class="col-sm-1">
                       <i class="fas fa-calendar-alt fa-2x" aria-hidden="true" ></i>
@@ -230,36 +230,36 @@
 
 <script>
 export default {
-  name: "AdminShow",
-  data() {
+  name: 'AdminShow',
+  data () {
     return {
       /* global moment */
-      ShowDate: moment(this.show.ShowDate, "YYYY-MM-DD").format("MMMM Do YYYY"),
-      ShowTime: moment(this.show.ShowTime, "HH:mm").format("hh:mm a"),
-      token: window.localStorage.getItem("AccessToken"),
+      ShowDate: moment(this.show.ShowDate, 'YYYY-MM-DD').format('MMMM Do YYYY'),
+      ShowTime: moment(this.show.ShowTime, 'HH:mm').format('hh:mm a'),
+      token: window.localStorage.getItem('AccessToken'),
       showImg: true,
       time: Date()
-    };
+    }
   },
-  props: ["show"],
+  props: ['show'],
   methods: {
-    emitevent() {
+    emitevent () {
       console.log(this.show)
-      this.$emit("showmodal", this.show);
+      this.$emit('showmodal', this.show)
     },
-    emailevent() {
-      this.$emit("showemailmodal", this.show);
+    emailevent () {
+      this.$emit('showemailmodal', this.show)
     },
-    editevent() {
+    editevent () {
       /* global $ */
-      console.log("editclicked", this.show._id);
-      $("#editshow" + this.show._id).modal("show");
+      console.log('editclicked', this.show._id)
+      $('#editshow' + this.show._id).modal('show')
       this.showdatepicker()
     },
-    editshow() {
-      console.log("editclicked");
+    editshow () {
+      console.log('editclicked')
       var formdata = new FormData(
-        document.querySelector("#editshowform" + this.show._id)
+        document.querySelector('#editshowform' + this.show._id)
       )
       formdata.append('Ticketdetails', JSON.stringify(this.show.Ticketdetails))
 
@@ -267,130 +267,130 @@ export default {
       axios
         .create({
           baseURL: url,
-          headers: { token: window.localStorage.getItem("AccessToken") }
+          headers: { token: window.localStorage.getItem('AccessToken') }
         })
-        .post("/updateshow", formdata)
+        .post('/updateshow', formdata)
         .then(
-          function(res) {
-            $("#editshow" + this.show._id).modal("hide");
-            swal("Updated!", "Show has been successfully updated.", "success");
-            this.time = Date();
+          function (res) {
+            $('#editshow' + this.show._id).modal('hide')
+            swal('Updated!', 'Show has been successfully updated.', 'success')
+            this.time = Date()
             axios({
-              method: "get",
+              method: 'get',
               headers: {
-                token: window.localStorage.getItem("AccessToken")
+                token: window.localStorage.getItem('AccessToken')
               },
-              url: url + "/showlist"
+              url: url + '/showlist'
             })
               .then(response => {
-                this.$eventbus.$emit("refreshdata", response.data);
+                this.$eventbus.$emit('refreshdata', response.data)
               })
               .catch(err => {
-                console.log("error while getting show list", err);
-              });
+                console.log('error while getting show list', err)
+              })
           }.bind(this)
         )
         .catch(error => {
-          console.log(error);
-        });
+          console.log(error)
+        })
     },
-    deleteshow() {
+    deleteshow () {
       /* global swal axios url _ */
       swal({
-        title: "Are you sure?",
+        title: 'Are you sure?',
         text: "You won't be able to revert this!",
-        type: "warning",
+        type: 'warning',
         showCancelButton: true,
-        confirmButtonColor: "#3085d6",
-        cancelButtonColor: "#d33",
-        confirmButtonText: "Yes, delete it!"
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Yes, delete it!'
       }).then(result => {
         if (result.value) {
           axios
             .create({
               baseURL: url,
-              headers: { token: window.localStorage.getItem("AccessToken") }
+              headers: { token: window.localStorage.getItem('AccessToken') }
             })
-            .post("/deleteshow", { id: this.show._id })
+            .post('/deleteshow', { id: this.show._id })
             .then(res => {
-              swal("Deleted!", "Show has been deleted.", "success");
+              swal('Deleted!', 'Show has been deleted.', 'success')
               axios({
-                method: "get",
+                method: 'get',
                 headers: {
-                  token: window.localStorage.getItem("AccessToken")
+                  token: window.localStorage.getItem('AccessToken')
                 },
-                url: url + "/showlist"
+                url: url + '/showlist'
               })
                 .then(response => {
-                  this.$eventbus.$emit("refreshdata", response.data);
+                  this.$eventbus.$emit('refreshdata', response.data)
                 })
                 .catch(err => {
-                  console.log("error while getting show list", err);
-                });
+                  console.log('error while getting show list', err)
+                })
             })
             .catch(error => {
-              console.log(error);
-            });
+              console.log(error)
+            })
         }
-      });
+      })
     },
-    showstatuschanged(isPublished) {
+    showstatuschanged (isPublished) {
       axios
         .create({
           baseURL: url,
-          headers: { token: window.localStorage.getItem("AccessToken") }
+          headers: { token: window.localStorage.getItem('AccessToken') }
         })
-        .post("/ispublished", {
+        .post('/ispublished', {
           id: this.show._id,
           isPublished: isPublished
         })
         .then(res => {
-          console.log(res);
+          console.log(res)
         })
         .catch(error => {
-          console.log(error);
-        });
+          console.log(error)
+        })
     },
-    emitshowdescription(showclicked) {
-      this.$eventbus.$emit("showdescription", showclicked);
+    emitshowdescription (showclicked) {
+      this.$eventbus.$emit('showdescription', showclicked)
     },
-    duplicateEvent(show) {
-      console.log("duplicate show clicked");
+    duplicateEvent (show) {
+      console.log('duplicate show clicked')
       swal({
-        title: "Duplicate Show",
-        text: "Do you want to duplicate the show!",
-        type: "warning",
+        title: 'Duplicate Show',
+        text: 'Do you want to duplicate the show!',
+        type: 'warning',
         showCancelButton: true,
-        confirmButtonColor: "#3085d6",
-        cancelButtonColor: "#d33",
-        confirmButtonText: "Yes, Sure!"
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Yes, Sure!'
       }).then(res => {
-        console.log(res.value);
+        console.log(res.value)
         if (res.value) {
           axios
             .create({
               baseURL: url,
-              headers: { token: window.localStorage.getItem("AccessToken") }
+              headers: { token: window.localStorage.getItem('AccessToken') }
             })
-            .post("/duplicateShow", show)
+            .post('/duplicateShow', show)
             .then(res => {
-              console.log(res);
+              console.log(res)
             })
             .catch(err => {
-              console.log(error);
-            });
+              console.log(error)
+            })
         }
-      });
+      })
     },
     showdatepicker () {
       console.log('date picker clicked')
       let dates = this.show.ShowDate.split(',')
       _.each(dates, (element, index, list) => {
-        let date = element.replace(';','')
+        let date = element.replace(';', '')
         list[index] = new Date(date)
       })
       console.log(dates)
-     $(`#editshowform${this.show._id} .row`+' .date').datepicker('setDates', dates)
+      $(`#editshowform${this.show._id} .row` + ' .date').datepicker('setDates', dates)
       // $('.date').datepicker('show')
     },
     deleteticket (TicketType) {
@@ -425,19 +425,19 @@ export default {
     }
   },
   mounted () {
-      // $('.date').datepicker({
-      //     container: '#editshow' + this.show._id
-      //   })
+    // $('.date').datepicker({
+    //     container: '#editshow' + this.show._id
+    //   })
   },
   watch: {
-    show: function(newVal, oldVal) {
-      this.ShowDate = moment(newVal.ShowDate, "YYYY-MM-DD").format(
-        "MMMM Do YYYY"
+    show: function (newVal, oldVal) {
+      this.ShowDate = moment(newVal.ShowDate, 'YYYY-MM-DD').format(
+        'MMMM Do YYYY'
       )
-      this.ShowTime = moment(newVal.ShowTime, "HH:mm").format("hh:mm a")
+      this.ShowTime = moment(newVal.ShowTime, 'HH:mm').format('hh:mm a')
     }
   }
-};
+}
 </script>
 
 <style scoped>

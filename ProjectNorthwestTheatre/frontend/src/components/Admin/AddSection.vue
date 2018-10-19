@@ -46,7 +46,7 @@
         <label class="col-sm-4 text-right form-label">Section Number:</label>
         <input class="col-sm-4 form-control" type="number" placeholder="Section Number" name="SectionNumber" id="secnumber" >
       </div>
-  <!-- Keerthi Chiduruppa : Added radio buttons for semester -->   
+  <!-- Keerthi Chiduruppa : Added radio buttons for semester -->
       <div class="form-group row justify-content-center">
         <label class="col-sm-4 text-right form-label">
         Semester:
@@ -80,32 +80,32 @@
 </template>
 <script>
 export default {
-  name: "AddSection",
-  data() {
+  name: 'AddSection',
+  data () {
     return {
       formdata: {
-        ShowRating: ""
+        ShowRating: ''
       },
       /* global moment */
       mindate: moment().format('YYYY')
-    };
+    }
   },
   methods: {
-    alert(header, msg, type) {
-      swal(header, msg, type);
+    alert (header, msg, type) {
+      swal(header, msg, type)
     },
 
-    addsection() {
-      var formdata = new FormData(document.querySelector("#addsection"));
+    addsection () {
+      var formdata = new FormData(document.querySelector('#addsection'))
       var data = {
         ProfessorName: formdata.get('ProfessorName'),
-        ClassDay: '' + (formdata.get('M') ? formdata.get('M') : '' )  + (formdata.get('T') ? formdata.get('T') : '' ) + (formdata.get('W') ? formdata.get('W') : '' ) + (formdata.get('R') ? formdata.get('R') : '' ) + (formdata.get('F') ? formdata.get('F') : '' ),
+        ClassDay: '' + (formdata.get('M') ? formdata.get('M') : '') + (formdata.get('T') ? formdata.get('T') : '') + (formdata.get('W') ? formdata.get('W') : '') + (formdata.get('R') ? formdata.get('R') : '') + (formdata.get('F') ? formdata.get('F') : ''),
         ClassTime: formdata.get('ClassTime'),
         SectionNumber: formdata.get('SectionNumber'),
         Semester: formdata.get('Semester'),
         Year: formdata.get('Year')
       }
-      /* global axios url swal */
+      /* global axios url swal $ */
       axios.create({
         baseURL: url,
         headers: { 'token': window.localStorage.getItem('AccessToken') }
@@ -115,12 +115,12 @@ export default {
           $('#addsection')[0].reset()
         })
         .catch(error => {
-          this.alert(error.response.data, "Please try again", "error");
-          console.log(error);
+          this.alert(error.response.data, 'Please try again', 'error')
+          console.log(error)
         })
     }
   }
-};
+}
 </script>
 <style scoped>
 .card {

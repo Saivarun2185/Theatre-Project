@@ -28,7 +28,6 @@
                     <div class="input-group-text bg-dark text-light "><i class="fa fa-search"></i></div>
                 </span>
             </div>
-       
     </div>
       <UserShow class="down" v-for="ele of updatedshowlist" :key="ele._id"  :show="ele" v-if="ele.isPublished">
       </UserShow>
@@ -37,30 +36,30 @@
 </template>
 
 <script>
-import UserShow from "./UserShow.vue";
+import UserShow from './UserShow.vue'
 /* Saivarun Illendula - Added API Calls */
 export default {
-  name: "AdminDashboard",
-  data() {
+  name: 'AdminDashboard',
+  data () {
     return {
-      /* global $ axios url */
+      /* global $ axios */
       sectionlist: [],
       showlist: [],
-      show: "",
+      show: '',
       search: ''
-    };
+    }
   },
   components: {
     UserShow
   },
   methods: {
-    showdescriptionmodal() {
-      $("#descriptionmodal").modal("show");
+    showdescriptionmodal () {
+      $('#descriptionmodal').modal('show')
     },
-    refreshData() {
-      var _this = this;
-      /* global axios moment _  userurl */
-     /*  axios({
+    refreshData () {
+      var _this = this
+      /* global axios userurl */
+      /*  axios({
         method: "get",
         headers: {
           token: window.localStorage.getItem("AccessToken")
@@ -80,52 +79,52 @@ export default {
           console.log("error while getting section list", err);
         }); */
       axios({
-        method: "get",
-        url: userurl + "/showlist"
+        method: 'get',
+        url: userurl + '/showlist'
       })
-        .then(function(response) {
-          console.log(response.data);
-          _this.showlist = response.data;
+        .then(function (response) {
+          console.log(response.data)
+          _this.showlist = response.data
         })
-        .catch(function(err) {
-          console.log("error while getting show list", err);
-        });
+        .catch(function (err) {
+          console.log('error while getting show list', err)
+        })
     }
   },
-  created() {
-    this.refreshData();
+  created () {
+    this.refreshData()
     this.$eventbus.$on(
-      "refreshdata",
-      function(data) {
-        this.showlist = data;
-        console.log(data, this.showlist);
+      'refreshdata',
+      function (data) {
+        this.showlist = data
+        console.log(data, this.showlist)
       }.bind(this)
-    );
+    )
     this.$eventbus.$on(
-      "showdescription",
-      function(showclicked) {
-        this.show = showclicked;
-        console.log("show description", this.show);
-        this.showdescriptionmodal();
+      'showdescription',
+      function (showclicked) {
+        this.show = showclicked
+        console.log('show description', this.show)
+        this.showdescriptionmodal()
       }.bind(this)
-    );
+    )
   },
 
   computed: {
-    updatedshowlist(){
+    updatedshowlist () {
       return this.showlist.filter(show => {
         return show.ShowTitle.toLowerCase().includes(this.search.toLowerCase())
       })
     }
   }
 
-};
+}
 </script>
 
 <style scoped>
 .fixed{
     position: fixed;
-    z-index: 100; 
+    z-index: 100;
 }
 
 .down{

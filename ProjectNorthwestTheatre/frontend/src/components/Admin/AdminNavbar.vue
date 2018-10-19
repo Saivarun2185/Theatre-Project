@@ -229,7 +229,7 @@ export default {
         })
     },
     addticketprice () {
-     // console.log(TicketType.value)
+      // console.log(TicketType.value)
       this.ticketdetails.push({
         'TicketType': $('#TicketTypeAddShow').val(),
         'TicketPrice': $('#TicketPriceAddShow').val()

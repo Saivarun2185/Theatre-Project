@@ -81,7 +81,7 @@ export default {
       this.admin = admin
       /* global $ */
       $('#editModaladmin').modal('show')
-    },  
+    },
     editadminform () {
       console.log('edit form clicked')
       var formdata = new FormData(document.querySelector('#editModaladminform'))
@@ -95,7 +95,7 @@ export default {
         baseURL: url,
         headers: { 'token': window.localStorage.getItem('AccessToken') }
       }).post('/updateadmin', data)
-        .then(function(res){
+        .then(function (res) {
           $('#editModaladmin').modal('hide')
           swal(
             'Updated!',

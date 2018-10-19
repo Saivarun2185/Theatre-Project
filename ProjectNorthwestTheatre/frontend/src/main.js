@@ -19,9 +19,9 @@ require('bootstrap')
 require('bootstrap-datepicker')
 
 Vue.use(VueGoogleMaps, {
- load: {
-   key: 'AIzaSyCoZmlmWNMd1Ef1ig-WA8jJ9NRnSQ5AP6Y'
- }
+  load: {
+    key: 'AIzaSyCoZmlmWNMd1Ef1ig-WA8jJ9NRnSQ5AP6Y'
+  }
 })
 /* eslint-disable no-new */
 new Vue({
